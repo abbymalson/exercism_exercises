@@ -13,28 +13,41 @@ defmodule SecretHandshake do
 
   10000 = Reverse the order of the operations in the secret handshake
   """
+  @phrase_map %{
+    0 => "wink",
+    1 => "double blink",
+    2 => "close your eyes",
+    3 => "jump"
+  }
+
   @spec commands(code :: integer) :: list(String.t())
   def commands(code) do
-    # convert code to binary string
     binary_char_list = Integer.to_charlist(code, 2)
 
-    # store the results of the checks in a string/array/list so we can revers the action if there is a NOT
+    reversed_char_list = Enum.reverse(binary_char_list)
+    bit_list =
+      reversed_char_list
+      |> Enum.map(fn char -> char == ?1 end)
 
-    # Find the length of the string?
-    # should be able to
-    count(binary_char_list)
-    # ...
-    # Enum.map(Integer.to_charlist(code, 2))
-    Enum.map(binary_char_list)
-    # Enum.slice(binary_char_list, position)
-    # if 5 characters, and that value is a '1' then flip the results ...
+    head = Enum.slice(bit_list, 0, 4)
+    reverse? = Enum.at(bit_list, 4)
 
-    # if at position 4th position jump (and value is '1') - Jump
+    phrases =
+      Enum.with_index(head)
+      |> Enum.map(fn {bit, index} ->
+        if bit do
+          @phrase_map[index]
+        else
+          nil
+        end
+      end)
+      |> Enum.filter(fn phrase -> phrase end)
 
-    # if at 3rd position - Close your eyes
-
-    # if at 2nd position - double blink
-    # if at 1st position - Check for Wink
+    if reverse? do
+      Enum.reverse(phrases)
+    else
+      phrases
+    end
   end
 end
 
